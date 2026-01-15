@@ -3,9 +3,9 @@ CREATE TABLE IF NOT EXISTS transacao (
     tipo int,
     data date,
     valor decimal,
-    cpf bigint
+    cpf bigint,
     cartao varchar(255),
     hora time,
-    dono_loja varchar(255),
-    nome_loja varchar(255)
-)
+    dono_da_loja varchar(255),
+    nome_da_loja varchar(255)
+);
