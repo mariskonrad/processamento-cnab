@@ -9,6 +9,8 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.ItemWriter;
+import org.springframework.batch.infrastructure.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.infrastructure.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.infrastructure.item.file.FlatFileItemReader;
 import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.infrastructure.item.file.transform.Range;
@@ -17,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
 
 @Configuration
@@ -69,7 +72,6 @@ public class BatchConfig {
 
     @Bean
     ItemProcessor<TransacaoCNAB, Transacao> processor() {
-        // todo utilizar padrão wither pattern
         return item -> {
             var transacao = new Transacao(
                     null,
@@ -86,5 +88,17 @@ public class BatchConfig {
                     .withHora(item.hora());
             return transacao;
         };
+    }
+
+    @Bean
+    JdbcBatchItemWriter<Transacao> writer(DataSource dataSource){
+        return new JdbcBatchItemWriterBuilder<Transacao>()
+                .dataSource(dataSource)
+                .sql("""
+                        INSERT INTO transacao (tipo, data, valor, cpf, cartao, hora, dono_da_loja, nome_da_loja)
+                        VALUES (:tipo, :data, :valor, :cpf, :cartao, :hora, :donoDaLoja, :nomeDaLoja)
+                        """)
+                .beanMapped() // vai mapear os placeholders preenchendo-os com o valor do objeto Transacao
+                .build();
     }
 }
