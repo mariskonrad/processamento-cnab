@@ -9,6 +9,7 @@ spring:
   h2:
     console:
       enabled: true
+      path: /h2-console
   batch:
     jdbc:
       initialize-schema: always
